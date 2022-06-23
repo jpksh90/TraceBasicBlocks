@@ -4,11 +4,16 @@
 //
 
 #include <stdio.h>
+int bbCounter=0;
+extern void writeBBInfo();
+extern void incrementCounter();
 
-extern void writeBBInfo(char*, char*);
-
-void writeBBInfo(char* file, char* blkinfo) {
-    FILE *fp = fopen(file, "a");
-    fprintf(fp, "%s\n", blkinfo);
+void writeBBInfo() {
+    FILE *fp = fopen("basicblock.txt", "a");
+    fprintf(fp, "Number of basic blocks executed: %d\n", bbCounter);
     fclose(fp);
+}
+
+void incrementCounter() {
+  bbCounter = bbCounter+1;
 }
