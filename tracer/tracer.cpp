@@ -51,7 +51,6 @@ namespace {
                         IRBuilder<> builder(&B);
                         builder.SetInsertPoint(&B, B.getFirstInsertionPt());
                         FunctionCallee incrementCtr = M.getOrInsertFunction("incrementCounter",
-                                                                            Type::getVoidTy(context),
                                                                             Type::getVoidTy(context));
                         builder.CreateCall(incrementCtr);
                     }
@@ -65,8 +64,7 @@ namespace {
             for(BasicBlock* B : terminatorBlocks(*Main)) {
                 IRBuilder<> builder(B);
                 builder.SetInsertPoint(B, B->getFirstInsertionPt());
-                FunctionCallee writeBBInfo = M.getOrInsertFunction("writeBBInfo", Type::getVoidTy(context),
-                                                                   Type::getVoidTy(context));
+                FunctionCallee writeBBInfo = M.getOrInsertFunction("writeBBInfo", Type::getVoidTy(context));
                 builder.CreateCall(writeBBInfo);
             }
             return false;
