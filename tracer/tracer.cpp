@@ -55,18 +55,23 @@ namespace {
             return counter;
         }
 
-        void incrementCounter(Module &M, BasicBlock &B, GlobalVariable *counter) {
+        StoreInst* incrementCounter(Module &M, BasicBlock &B, GlobalVariable *counter) {
             IRBuilder<> builder(&B);
             builder.SetInsertPoint(&B, B.getFirstInsertionPt());
             LoadInst *loadInst = builder.CreateLoad(counter);
             Value *incrementIsnt = builder.CreateAdd(loadInst, builder.getInt64(1));
             StoreInst *storeInst = builder.CreateStore(incrementIsnt, counter);
+            return storeInst;
         }
 
 
-        void printValues(Module &M, BasicBlock &B, GlobalVariable *counter, int numBb) {
+        void printValues(Module &M, BasicBlock &B, GlobalVariable *counter, int numBb, Instruction* insertAfter) {
             IRBuilder<> builder(&B);
-            builder.SetInsertPoint(B.getTerminator());
+            if (insertAfter->getNextNode()) {
+                builder.SetInsertPoint(insertAfter->getNextNode());
+            } else {
+                builder.SetInsertPoint(B.getTerminator());
+            }
             // get the load instruction for the counter
             LoadInst *loadInst = builder.CreateLoad(counter);
             PointerType *PtrType = PointerType::getUnqual(Type::getInt8Ty(M.getContext()));
@@ -93,9 +98,9 @@ namespace {
                     LLVM_DEBUG(dbgs() << "\n=======INSTRUMENTING " << F.getName() << "=====\n");
                     LLVM_DEBUG(dbgs() << "Instrumenting Function " << F.getName() << '\n');
                     for (BasicBlock &B: F) {
-                        incrementCounter(M, B, var);
+                        StoreInst* lastInst = incrementCounter(M, B, var);
+                        printValues(M,B, var, ++nbBasicBlocks, lastInst);
                         NbInstrCalls++;
-                        nbBasicBlocks++;
                     }
                     NbFuncInst++;
                     LLVM_DEBUG(dbgs() << "\n======= INSTRUMENTING " << F.getName() << "========\n");
@@ -103,10 +108,10 @@ namespace {
             }
 
             // Add to terminator instruction to main functions
-            Function *Main = M.getFunction("main");
-            for (BasicBlock *B: terminatorBlocks(*Main)) {
-                printValues(M, *B, var, nbBasicBlocks);
-            }
+//            Function *Main = M.getFunction("main");
+//            for (BasicBlock *B: terminatorBlocks(*Main)) {
+//                printValues(M, *B, var, nbBasicBlocks);
+//            }
             return false;
         }
 
