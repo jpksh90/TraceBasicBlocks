@@ -64,7 +64,7 @@ namespace {
         }
 
 
-        void insertAtExit(Module &M, BasicBlock &B, GlobalVariable *counter, int numBb) {
+        void printValues(Module &M, BasicBlock &B, GlobalVariable *counter, int numBb) {
             IRBuilder<> builder(&B);
             builder.SetInsertPoint(B.getTerminator());
             // get the load instruction for the counter
@@ -75,12 +75,11 @@ namespace {
 
             // Add the arguments
             std::vector<Value *> arguments;
-            arguments.push_back(builder.CreateGlobalStringPtr("\n\n[___BB_EXECUTED___ %d]\n"));
-            arguments.push_back(loadInst);
+            arguments = {builder.CreateGlobalStringPtr("\n\n[[TRACES::EXEC_BASIC_BLOCKS::%d]]\n"), loadInst };
             builder.CreateCall(printfFunc, arguments, "call-block");
 
             // Insert the total number of basic blocs
-            arguments = {builder.CreateGlobalStringPtr("[___NB_STATIC_BB___ %d]\n"), builder.getInt32(numBb)};
+            arguments = {builder.CreateGlobalStringPtr("\n\n[[TRACES::STATIC_BASIC_BLOCKS::%d]]\n"), builder.getInt32(numBb)};
             builder.CreateCall(printfFunc, arguments);
         }
 
@@ -106,7 +105,7 @@ namespace {
             // Add to terminator instruction to main functions
             Function *Main = M.getFunction("main");
             for (BasicBlock *B: terminatorBlocks(*Main)) {
-                insertAtExit(M, *B, var, nbBasicBlocks);
+                printValues(M, *B, var, nbBasicBlocks);
             }
             return false;
         }
