@@ -1,8 +1,6 @@
 #include <stdio.h>
 int fib(int n) {
-  int a, b, c;
-  a = 0;
-  b = 1;
+  int a=0, b=1, c=0;
   for (int i=1; i<=n; ++i) {
     c = a+b;
     a = b;
@@ -13,11 +11,12 @@ int fib(int n) {
 
 int main() {
   int n;
+  printf("Enter a number: ");
   scanf("%d", &n);
   if (n < 0) {
     printf("n is negative");
     return -1;
   }
-  printf("%d", fib(n));
+  printf("fib(%d)=%d", n, fib(n));
   return 0;
 }
