@@ -130,9 +130,11 @@ namespace {
 } //anonymous namespace
 
 char Tracer::ID = 0;
-static RegisterPass<Tracer> X("tracer", "Tracing pass", false, false);
+static RegisterPass<Tracer> X("tracer", "Tracing pass", 
+                                    false, /* true, if the pass modifies the CFG */
+                                    false /* true, if it an analysis pass */);
 
 static RegisterStandardPasses Y(
-        PassManagerBuilder::EP_OptimizerLast,
+        PassManagerBuilder::EP_OptimizerLast, /* place it in last optimization */
         [](const PassManagerBuilder &Builder,
            legacy::PassManagerBase &PM) { PM.add(new Tracer()); });
